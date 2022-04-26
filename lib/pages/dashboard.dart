@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:race_tracker/services/colors.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+
+import '../services/bottom_bar.dart';
 
 class Dashboard extends StatelessWidget {
-  const Dashboard({Key? key}) : super(key: key);
+  Dashboard({Key? key}) : super(key: key);
+
+  static const double carouselHeight = 175;
+  static const double carouselWidgetHeight = 150;
+  final List<Widget> carouselWidgets = [
+    Container(height: carouselWidgetHeight, color: backgroundColor,),
+    Container(height: carouselWidgetHeight, color: Colors.red,),
+    Container(height: carouselWidgetHeight, color: Colors.orange,),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -12,97 +22,68 @@ class Dashboard extends StatelessWidget {
         title: const Text('Dashboard'),
       ),
       drawer: const Drawer(),
-      body: Stack(
-        children: [
-          Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Center(child: Container(
-                height: 110,
-              decoration: const BoxDecoration(gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: <Color>[Color.fromRGBO(0, 0, 0, 0.5),Colors.transparent]
-              )),))
-          ),
-          Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      InkWell(
-                        onTap: (){},
-                        child: Stack(
-                          children: [
-                            SvgPicture.asset('assets/bottom_bar/dashboard.svg'),
-                            Positioned(
-                                left: 40,
-                                top: 6,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    const Icon(Icons.dashboard_outlined, size: 25, color: primaryTextColor,),
-                                    Text('Dashboard', style: Theme.of(context).textTheme.bodySmall?.merge(const TextStyle(color: primaryTextColor)),)
-                                  ],
-                                )
-                            )
-                          ],
-                        ),
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                      ),
-                      InkWell(
-                        onTap: (){},
-                        child: Stack(
-                          children: [
-                            SvgPicture.asset('assets/bottom_bar/routes.svg'),
-                            Positioned(
-                                right: 52,
-                                top: 6,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    const Icon(Icons.directions, size: 25, color: primaryTextColor,),
-                                    Text('Routes', style: Theme.of(context).textTheme.bodySmall?.merge(const TextStyle(color: primaryTextColor)),)
-                                  ],
-                                )
-                            )
-                          ],
-                        ),
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 20.0,),
-                ],
-              )
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Column(
-              children: [
-                InkWell(
-                  onTap: (){},
-                  child: SvgPicture.asset('assets/bottom_bar/new_activity.svg'),
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                ),
-                const SizedBox(height: 41.84,),
-              ],
-            ),
-          ),
-        ],
-      ),
+      bottomNavigationBar: const BottomBar(),
+      body: const CarouselWithIndicator()
     );
+  }
+}
+
+class CarouselWithIndicator extends StatefulWidget {
+  const CarouselWithIndicator({Key? key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return _CarouselWithIndicatorState();
+  }
+}
+
+class _CarouselWithIndicatorState extends State<CarouselWithIndicator> {
+
+  static const double carouselHeight = 175;
+  static const double carouselWidgetHeight = 150;
+  final List<Widget> carouselWidgets = [
+    Container(height: carouselWidgetHeight, color: backgroundColor,),
+    Container(height: carouselWidgetHeight, color: Colors.red,),
+    Container(height: carouselWidgetHeight, color: Colors.orange,),
+  ];
+
+  int _current = 0;
+  final CarouselController _controller = CarouselController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: [
+      CarouselSlider(
+        items: carouselWidgets,
+        carouselController: _controller,
+        options: CarouselOptions(
+            height: carouselHeight,
+            viewportFraction: 1,
+            onPageChanged: (index, reason) {
+              setState(() {
+                _current = index;
+              });
+            }),
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: carouselWidgets.asMap().entries.map((entry) {
+          return GestureDetector(
+            onTap: () => _controller.animateToPage(entry.key),
+            child: Container(
+              width: 12.0,
+              height: 12.0,
+              margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: (Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black)
+                      .withOpacity(_current == entry.key ? 0.9 : 0.4)),
+            ),
+          );
+        }).toList(),
+      ),
+    ]);
   }
 }

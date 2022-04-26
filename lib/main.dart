@@ -6,7 +6,7 @@ import 'package:race_tracker/services/colors.dart';
 
 void main() => runApp(MaterialApp(
   routes: {
-    '/' : (context) => const Dashboard(),
+    '/' : (context) => Dashboard(),
     '/record_map' : (context) => const RecordMap()
   },
   theme: ThemeData(
@@ -20,7 +20,7 @@ void main() => runApp(MaterialApp(
       bodySmall: TextStyle(fontSize: 12.0, color: secondaryTextColor),
       labelMedium: TextStyle(fontSize: 12.0, color: secondaryTextColor, fontWeight: FontWeight.w300),
     ),
-    scaffoldBackgroundColor: backgroundColor,
+    // scaffoldBackgroundColor: backgroundColor,
     appBarTheme: const AppBarTheme(
       color: primaryColor,
       titleTextStyle: TextStyle(fontSize: 20.0, color: primaryTextColor, fontWeight: FontWeight.w500),
