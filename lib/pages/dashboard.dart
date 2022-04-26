@@ -17,6 +17,18 @@ class Dashboard extends StatelessWidget {
               bottom: 0,
               left: 0,
               right: 0,
+              child: Center(child: Container(
+                height: 110,
+              decoration: const BoxDecoration(gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: <Color>[Color.fromRGBO(0, 0, 0, 0.5),Colors.transparent]
+              )),))
+          ),
+          Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
               child: Column(
                 children: [
                   Row(
@@ -55,7 +67,7 @@ class Dashboard extends StatelessWidget {
                 const SizedBox(height: 41.84,),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
