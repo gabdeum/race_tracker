@@ -3,6 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:race_tracker/services/route_map.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+import 'package:race_tracker/services/colors.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
