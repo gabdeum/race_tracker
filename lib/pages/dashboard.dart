@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:race_tracker/services/colors.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -36,13 +37,45 @@ class Dashboard extends StatelessWidget {
                     children: [
                       InkWell(
                         onTap: (){},
-                        child: SvgPicture.asset('assets/bottom_bar/dashboard.svg'),
+                        child: Stack(
+                          children: [
+                            SvgPicture.asset('assets/bottom_bar/dashboard.svg'),
+                            Positioned(
+                                left: 40,
+                                top: 6,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    const Icon(Icons.dashboard_outlined, size: 25, color: primaryTextColor,),
+                                    Text('Dashboard', style: Theme.of(context).textTheme.bodySmall?.merge(const TextStyle(color: primaryTextColor)),)
+                                  ],
+                                )
+                            )
+                          ],
+                        ),
                         splashColor: Colors.transparent,
                         highlightColor: Colors.transparent,
                       ),
                       InkWell(
                         onTap: (){},
-                        child: SvgPicture.asset('assets/bottom_bar/routes.svg'),
+                        child: Stack(
+                          children: [
+                            SvgPicture.asset('assets/bottom_bar/routes.svg'),
+                            Positioned(
+                                right: 52,
+                                top: 6,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    const Icon(Icons.directions, size: 25, color: primaryTextColor,),
+                                    Text('Routes', style: Theme.of(context).textTheme.bodySmall?.merge(const TextStyle(color: primaryTextColor)),)
+                                  ],
+                                )
+                            )
+                          ],
+                        ),
                         splashColor: Colors.transparent,
                         highlightColor: Colors.transparent,
                       )
