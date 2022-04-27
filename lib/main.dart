@@ -13,14 +13,14 @@ void main() => runApp(MaterialApp(
     fontFamily: 'Roboto',
     textTheme: const TextTheme(
       headlineMedium: TextStyle(fontSize: 20.0, color: primaryTextColor, fontWeight: FontWeight.w500),
-      titleLarge: TextStyle(fontSize: 20.0, color: secondaryTextColor),
-      titleMedium: TextStyle(fontSize: 16.0, color: secondaryTextColor),
+      titleLarge: TextStyle(fontSize: 20.0, color: secondaryTextColor,),
+      titleMedium: TextStyle(fontSize: 16.0, color: secondaryTextColor, height: 1.25,),
       bodyLarge: TextStyle(fontSize: 14.0, color: secondaryTextColor, fontWeight: FontWeight.w500),
       bodyMedium: TextStyle(fontSize: 14.0, color: secondaryTextColor),
       bodySmall: TextStyle(fontSize: 12.0, color: secondaryTextColor),
-      labelMedium: TextStyle(fontSize: 12.0, color: secondaryTextColor, fontWeight: FontWeight.w300),
+      labelMedium: TextStyle(fontSize: 11.0, color: secondaryTextColor, fontWeight: FontWeight.w300),
     ),
-    // scaffoldBackgroundColor: backgroundColor,
+    scaffoldBackgroundColor: backgroundColor,
     appBarTheme: const AppBarTheme(
       color: primaryColor,
       titleTextStyle: TextStyle(fontSize: 20.0, color: primaryTextColor, fontWeight: FontWeight.w500),
