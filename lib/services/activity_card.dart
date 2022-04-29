@@ -58,7 +58,7 @@ class ActivityCard extends StatelessWidget {
                   Text(formatPace(activity.activityMovingTime, activity.activityDistance), style: Theme.of(context).textTheme.bodyMedium,),
                 ],)),
               ],)),
-            Image.asset('assets/placeholders/activity01.png', width: MediaQuery.of(context).size.width, height: 190, fit: BoxFit.cover,)
+            Image.asset('assets/placeholders/${activity.activityId}.png', width: MediaQuery.of(context).size.width, height: 190, fit: BoxFit.cover,)
           ],),
         ),
       ],

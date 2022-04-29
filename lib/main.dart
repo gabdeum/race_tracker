@@ -2,13 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:race_tracker/pages/dashboard.dart';
 import 'package:race_tracker/pages/home.dart';
 import 'package:race_tracker/pages/record_map.dart';
+import 'package:race_tracker/pages/routes.dart';
 import 'package:race_tracker/services/colors.dart';
+import 'package:race_tracker/widgets/bottom_bar.dart';
 
 void main() => runApp(MaterialApp(
+  // home: Scaffold(
+  //   body: Stack(alignment: AlignmentDirectional.bottomCenter, children: [
+  //     Dashboard(),
+  //     const BottomBar(),
+  //   ],),
+  // ),
+  initialRoute: '/dashboard',
   routes: {
-    '/' : (context) => Dashboard(),
+    '/dashboard' : (context) => Dashboard(),
+    '/routes' : (context) => const Routes(),
     '/record_map' : (context) => const RecordMap()
-  },
+    },
   theme: ThemeData(
     fontFamily: 'Roboto',
     textTheme: const TextTheme(
@@ -32,3 +42,21 @@ void main() => runApp(MaterialApp(
     )
   ),
 ));
+
+Route _createRoute() {
+  return PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => const Routes(),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(0.0, 1.0);
+      const end = Offset.zero;
+      const curve = Curves.ease;
+
+      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+      );
+    },
+  );
+}

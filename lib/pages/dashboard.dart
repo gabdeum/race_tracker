@@ -23,6 +23,9 @@ class Dashboard extends StatelessWidget {
     Activity(activityId: 'activity01', activityName: 'Afternoon run', activityType: 'run', activityDateTime: DateTime(1991, 3, 7, 23, 50), activityLocation: {"locationName" : "Versailles, FR"}, activityDistance: 13400, activityMovingTime: 4534),
     Activity(activityId: 'activity02', activityName: 'Morning bike', activityType: 'bike', activityDateTime: DateTime(1994, 11, 9, 9, 35), activityLocation: {"locationName" : "Marseille, FR"}, activityDistance: 35309, activityMovingTime: 7145),
     Activity(activityId: 'activity03', activityName: 'Noon swim', activityType: 'swim', activityDateTime: DateTime(2024, 5, 4, 12, 13), activityLocation: {"locationName" : "Brooklyn, NY"}, activityDistance: 530, activityMovingTime: 2124),
+    Activity(activityId: 'activity01', activityName: 'Afternoon run', activityType: 'run', activityDateTime: DateTime(1991, 3, 7, 23, 50), activityLocation: {"locationName" : "Versailles, FR"}, activityDistance: 13400, activityMovingTime: 4534),
+    Activity(activityId: 'activity02', activityName: 'Morning bike', activityType: 'bike', activityDateTime: DateTime(1994, 11, 9, 9, 35), activityLocation: {"locationName" : "Marseille, FR"}, activityDistance: 35309, activityMovingTime: 7145),
+    Activity(activityId: 'activity03', activityName: 'Noon swim', activityType: 'swim', activityDateTime: DateTime(2024, 5, 4, 12, 13), activityLocation: {"locationName" : "Brooklyn, NY"}, activityDistance: 530, activityMovingTime: 2124),
   ];
 
   @override
@@ -33,8 +36,7 @@ class Dashboard extends StatelessWidget {
         title: const Text('Dashboard'),
       ),
       drawer: const Drawer(),
-      body: Stack(
-        alignment: AlignmentDirectional.bottomEnd,
+      body: Stack(alignment: AlignmentDirectional.bottomCenter,
         children: [
           Column(
             children: [
@@ -49,9 +51,9 @@ class Dashboard extends StatelessWidget {
               )
             ],
           ),
-          const BottomBar(),
+          const Hero(tag: 'bottomBar', child: BottomBar(dashboard: true,))
         ],
-      )
+      ),
     );
   }
 }
