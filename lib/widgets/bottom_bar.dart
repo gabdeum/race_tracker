@@ -49,8 +49,8 @@ class BottomBar extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Icon(Icons.dashboard_outlined, size: 25, color: Color.fromRGBO(255, 255, 255, !dashboard ? 1 : 0.2),),
-                                  Text('Dashboard', style: Theme.of(context).textTheme.bodySmall?.merge(TextStyle(color: Color.fromRGBO(255, 255, 255, !dashboard ? 1 : 0.2))),)
+                                  Icon(Icons.dashboard_outlined, size: 25, color: Color.fromRGBO(255, 255, 255, !dashboard ? 1 : 0.5),),
+                                  Text('Dashboard', style: Theme.of(context).textTheme.bodySmall?.merge(TextStyle(color: Color.fromRGBO(255, 255, 255, !dashboard ? 1 : 0.5))),)
                                 ],
                               )
                           )
@@ -71,8 +71,8 @@ class BottomBar extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Icon(Icons.directions, size: 25, color: Color.fromRGBO(255, 255, 255, dashboard ? 1 : 0.2),),
-                                  Text('Routes', style: Theme.of(context).textTheme.bodySmall?.merge(TextStyle(color: Color.fromRGBO(255, 255, 255, dashboard ? 1 : 0.2))),)
+                                  Icon(Icons.directions, size: 25, color: Color.fromRGBO(255, 255, 255, dashboard ? 1 : 0.5),),
+                                  Text('Routes', style: Theme.of(context).textTheme.bodySmall?.merge(TextStyle(color: Color.fromRGBO(255, 255, 255, dashboard ? 1 : 0.5))),)
                                 ],
                               )
                           )

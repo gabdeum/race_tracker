@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:race_tracker/pages/dashboard.dart';
-import 'package:race_tracker/pages/home.dart';
 import 'package:race_tracker/pages/record_map.dart';
 import 'package:race_tracker/pages/routes.dart';
 import 'package:race_tracker/services/colors.dart';
-import 'package:race_tracker/widgets/bottom_bar.dart';
 
 void main() => runApp(MaterialApp(
   // home: Scaffold(

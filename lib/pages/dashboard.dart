@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/activity.dart';
-import '../services/activity_card.dart';
+import '../widgets/activity_card.dart';
 import '../widgets/bottom_bar.dart';
 import '../widgets/carousel.dart';
 
