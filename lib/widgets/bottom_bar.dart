@@ -91,7 +91,9 @@ class BottomBar extends StatelessWidget {
               child: Column(
                 children: [
                   InkWell(
-                    onTap: (){Navigator.of(context).push(_navigateToRecord());},
+                    onTap: (){
+                      Navigator.of(context).push(_navigateToRecord());
+                      },
                     child: SvgPicture.asset('assets/bottom_bar/new_activity.svg',),
                     splashColor: Colors.transparent,
                     highlightColor: Colors.transparent,
@@ -144,7 +146,7 @@ Route _navigateToDashboard() {
 
 Route _navigateToRecord() {
   return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => const RecordMap(),
+    pageBuilder: (context, animation, secondaryAnimation) => RecordMap(),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);
       const end = Offset.zero;

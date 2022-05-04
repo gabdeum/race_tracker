@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:location/location.dart';
 import '../services/activity.dart';
 import '../widgets/activity_card.dart';
 import '../widgets/bottom_bar.dart';
@@ -56,4 +57,5 @@ class Dashboard extends StatelessWidget {
       ),
     );
   }
+
 }

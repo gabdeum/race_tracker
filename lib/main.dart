@@ -15,7 +15,7 @@ void main() => runApp(MaterialApp(
   routes: {
     '/dashboard' : (context) => Dashboard(),
     '/routes' : (context) => const Routes(),
-    '/record_map' : (context) => const RecordMap()
+    '/record_map' : (context) => RecordMap()
     },
   theme: ThemeData(
     fontFamily: 'Roboto',
