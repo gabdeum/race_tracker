@@ -11,7 +11,7 @@ class Routes extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Routes'),
       ),
-      bottomNavigationBar: const Hero(
+      bottomNavigationBar: Hero(
           tag: 'bottomBar',
           child: BottomBar(dashboard: false)),
       // drawer: const Drawer(),

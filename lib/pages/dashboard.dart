@@ -52,7 +52,7 @@ class Dashboard extends StatelessWidget {
               )
             ],
           ),
-          const Hero(tag: 'bottomBar', child: BottomBar(dashboard: true,))
+          Hero(tag: 'bottomBar', child: BottomBar(dashboard: true,))
         ],
       ),
     );

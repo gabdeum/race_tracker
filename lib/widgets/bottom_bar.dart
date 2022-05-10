@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:race_tracker/services/activity_entry.dart';
 import '../pages/dashboard.dart';
 import '../pages/record_map.dart';
 import '../pages/routes.dart';
 import '../services/colors.dart';
 
-class BottomBar extends StatelessWidget {
+class BottomBar extends StatefulWidget {
 
   final bool dashboard;
+  ActivityEntry? currentActivity;
 
-  const BottomBar({
+  BottomBar({
     required this.dashboard,
+    this.currentActivity,
     Key? key,
   }) : super(key: key);
 
+  @override
+  State<BottomBar> createState() => _BottomBarState();
+}
+
+class _BottomBarState extends State<BottomBar> {
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -38,7 +46,7 @@ class BottomBar extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     InkWell(
-                      onTap: (){!dashboard ? Navigator.of(context).pushReplacement(_navigateToDashboard()): null;},
+                      onTap: (){!widget.dashboard ? Navigator.of(context).pushReplacement(_navigateToDashboard()): null;},
                       child: Stack(
                         children: [
                           SvgPicture.asset('assets/bottom_bar/dashboard.svg'),
@@ -49,8 +57,8 @@ class BottomBar extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Icon(Icons.dashboard_outlined, size: 25, color: Color.fromRGBO(255, 255, 255, !dashboard ? 1 : 0.5),),
-                                  Text('Dashboard', style: Theme.of(context).textTheme.bodySmall?.merge(TextStyle(color: Color.fromRGBO(255, 255, 255, !dashboard ? 1 : 0.5))),)
+                                  Icon(Icons.dashboard_outlined, size: 25, color: Color.fromRGBO(255, 255, 255, !widget.dashboard ? 1 : 0.5),),
+                                  Text('Dashboard', style: Theme.of(context).textTheme.bodySmall?.merge(TextStyle(color: Color.fromRGBO(255, 255, 255, !widget.dashboard ? 1 : 0.5))),)
                                 ],
                               )
                           )
@@ -60,7 +68,7 @@ class BottomBar extends StatelessWidget {
                       highlightColor: Colors.transparent,
                     ),
                     InkWell(
-                      onTap: (){dashboard ? Navigator.of(context).pushReplacement(_navigateToRoutes()) : null;},
+                      onTap: (){widget.dashboard ? Navigator.of(context).push(_navigateToRoutes()) : null;},
                       child: Stack(
                         children: [
                           SvgPicture.asset('assets/bottom_bar/routes.svg'),
@@ -71,8 +79,8 @@ class BottomBar extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Icon(Icons.directions, size: 25, color: Color.fromRGBO(255, 255, 255, dashboard ? 1 : 0.5),),
-                                  Text('Routes', style: Theme.of(context).textTheme.bodySmall?.merge(TextStyle(color: Color.fromRGBO(255, 255, 255, dashboard ? 1 : 0.5))),)
+                                  Icon(Icons.directions, size: 25, color: Color.fromRGBO(255, 255, 255, widget.dashboard ? 1 : 0.5),),
+                                  Text('Routes', style: Theme.of(context).textTheme.bodySmall?.merge(TextStyle(color: Color.fromRGBO(255, 255, 255, widget.dashboard ? 1 : 0.5))),)
                                 ],
                               )
                           )
@@ -91,9 +99,14 @@ class BottomBar extends StatelessWidget {
               child: Column(
                 children: [
                   InkWell(
-                    onTap: (){
-                      Navigator.of(context).push(_navigateToRecord());
-                      },
+                    onTap: () {
+                      print('ActivityEntry: ${widget.currentActivity}');
+                      Navigator.of(context).push(_navigateToRecord(widget.currentActivity)).then((value) {
+                        setState(() {
+                          widget.currentActivity = value as ActivityEntry;
+                        });
+                      });
+                    },
                     child: SvgPicture.asset('assets/bottom_bar/new_activity.svg',),
                     splashColor: Colors.transparent,
                     highlightColor: Colors.transparent,
@@ -144,9 +157,9 @@ Route _navigateToDashboard() {
   );
 }
 
-Route _navigateToRecord() {
+Route _navigateToRecord(ActivityEntry? currentActivity) {
   return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => RecordMap(),
+    pageBuilder: (context, animation, secondaryAnimation) => RecordMap(currentActivity: currentActivity,),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);
       const end = Offset.zero;

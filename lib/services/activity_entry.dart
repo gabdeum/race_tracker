@@ -13,39 +13,48 @@ class ActivityEntry {
 
   ActivityEntry();
 
+  Stream<LocationData> locationStream = const Stream.empty();
+
   startRecording() async {
 
     print('---------START---------');
 
-    Stream<LocationData>? locationStream = await getLocationStream();
     location = await getLocation();
     time = location?.time;
 
-    locationSubscription = locationStream?.listen((event) async {
+    if(locationSubscription == null){
 
-      distance += calculateDistance(location!.latitude!, location!.longitude!, event.latitude!, event.longitude!);
-      location = event;
+      print('locationSubscription is null: recreating subscription');
+      locationStream = getLocationStream();
+      locationSubscription = locationStream.listen((event) async {
+        distance += calculateDistance(location!.latitude!, location!.longitude!, event.latitude!, event.longitude!);
+        location = event;
 
-      if (time != null && event.time != null){
-        duration += (event.time! - time!)/1000;
-        time = event.time;
-      }
+        if (time != null && event.time != null){
+          duration += (event.time! - time!)/1000;
+          time = event.time;
+        }
 
-      print('time: $time - lat: ${location?.latitude} - lon: ${location?.longitude} - duration: ${duration}s - distance: ${distance}m');
+        print('time: $time - lat: ${location?.latitude} - lon: ${location?.longitude} - duration: ${duration}s - distance: ${distance}m');
 
-    });
+      });
+    }
+    else if(locationSubscription!.isPaused){
+      print('locationSubscription is NOT null: resuming subscription');
+      locationSubscription?.resume();
+    }
 
   }
 
   pauseRecording(){
-    locationSubscription?.pause();
     print('---------PAUSE---------');
-    print('time: $time - duration: $duration - distance: $distance');
+    locationSubscription?.pause();
   }
 
   stopRecording(){
     print('---------STOP----------');
     locationSubscription?.cancel();
+    locationSubscription = null;
   }
 
   Future<LocationData> getLocation() async {
@@ -73,17 +82,18 @@ class ActivityEntry {
 
     _locationData = await location.getLocation();
 
+    print('lat: ${_locationData.latitude}, lon: ${_locationData.longitude}');
+
     return _locationData;
 
   }
 
-  Future<Stream<LocationData>?> getLocationStream() async {
+  Stream<LocationData> getLocationStream() {
 
     Location location = Location();
-    Stream<LocationData>? _locationStream;
-    _locationStream = location.onLocationChanged;
+    locationStream = location.onLocationChanged;
 
-    return _locationStream;
+    return locationStream;
 
   }
 
