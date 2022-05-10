@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:race_tracker/services/DisplayData.dart';
 import 'package:race_tracker/services/activity_entry.dart';
@@ -117,7 +118,7 @@ class _BottomBarRecordState extends State<BottomBarRecord> {
       height: 90,
       width: widget.widthScreen,
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center,children: [
-        Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: widget.widthScreen * 0.08),
+        Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: (widget.currentActivity?.locationSubscription?.isPaused ?? false) ? widget.widthScreen * 0.045 : widget.widthScreen * 0.08),
           child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 IconButton(onPressed: (){}, icon: const Icon(Icons.directions, size: 25, color: primaryColorDark,)),
@@ -142,13 +143,41 @@ class _BottomBarRecordState extends State<BottomBarRecord> {
                 ),
               ],
           ),),),
+        (widget.currentActivity?.locationSubscription?.isPaused ?? false) ?
+        Row(children: [
+          Container(
+            decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: primaryColorDark, width: 2)),
+            child: FloatingActionButton(
+              heroTag: 'heroStopButton',
+              backgroundColor: primaryTextColor,
+              onPressed: (){
+                widget.currentActivity?.locationSubscription?.resume();
+                setState(() {});
+              },
+              child: Text('RESUME', style: Theme.of(context).textTheme.bodySmall?.merge(const TextStyle(color: primaryColorDark)),),
+            ),
+          ),
+          const SizedBox(width: 10,),
+          FloatingActionButton(
+            heroTag: 'heroStopButton',
+            backgroundColor: primaryColorDark,
+            onPressed: (){
+              widget.currentActivity?.locationSubscription?.resume();
+              setState(() {});
+            },
+            child: Text('FINISH', style: Theme.of(context).textTheme.bodySmall?.merge(const TextStyle(color: primaryTextColor)),),
+          ),
+        ],) :
         FloatingActionButton(
           heroTag: 'heroStopButton',
           backgroundColor: primaryColorDark,
-          onPressed: (){widget.currentActivity?.locationSubscription != null ? widget.currentActivity?.pauseRecording() : null;},
+          onPressed: (){
+            widget.currentActivity?.locationSubscription != null ? widget.currentActivity?.pauseRecording() : null;
+            setState(() {});
+            },
           child: SvgPicture.asset('assets/custom_icons/stop_icon.svg', width: 20,),
         ),
-        Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: widget.widthScreen * 0.08),
+        Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: (widget.currentActivity?.locationSubscription?.isPaused ?? false) ? widget.widthScreen * 0.04 : widget.widthScreen * 0.08),
             child: DropdownButtonHideUnderline(
               child: DecoratedBox(
                 decoration: BoxDecoration(border: Border.all(color: primaryColorDark, width:2),borderRadius: BorderRadius.circular(50)),
