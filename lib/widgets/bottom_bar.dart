@@ -46,7 +46,7 @@ class _BottomBarState extends State<BottomBar> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     InkWell(
-                      onTap: (){!widget.dashboard ? Navigator.of(context).pushReplacement(_navigateToDashboard()): null;},
+                      onTap: (){!widget.dashboard ? Navigator.of(context).pushReplacement(_navigateToDashboard(widget.currentActivity)): null;},
                       child: Stack(
                         children: [
                           SvgPicture.asset('assets/bottom_bar/dashboard.svg'),
@@ -68,7 +68,7 @@ class _BottomBarState extends State<BottomBar> {
                       highlightColor: Colors.transparent,
                     ),
                     InkWell(
-                      onTap: (){widget.dashboard ? Navigator.of(context).push(_navigateToRoutes()) : null;},
+                      onTap: (){widget.dashboard ? Navigator.of(context).push(_navigateToRoutes(widget.currentActivity)) : null;},
                       child: Stack(
                         children: [
                           SvgPicture.asset('assets/bottom_bar/routes.svg'),
@@ -100,7 +100,6 @@ class _BottomBarState extends State<BottomBar> {
                 children: [
                   InkWell(
                     onTap: () {
-                      print('ActivityEntry: ${widget.currentActivity}');
                       Navigator.of(context).push(_navigateToRecord(widget.currentActivity)).then((value) {
                         setState(() {
                           widget.currentActivity = value as ActivityEntry;
@@ -121,9 +120,9 @@ class _BottomBarState extends State<BottomBar> {
   }
 }
 
-Route _navigateToRoutes() {
+Route _navigateToRoutes(ActivityEntry? currentActivity) {
   return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => const Routes(),
+    pageBuilder: (context, animation, secondaryAnimation) => Routes(currentActivity: currentActivity,),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(1.0, 0.0);
       const end = Offset.zero;
@@ -139,9 +138,9 @@ Route _navigateToRoutes() {
   );
 }
 
-Route _navigateToDashboard() {
+Route _navigateToDashboard(ActivityEntry? currentActivity) {
   return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => Dashboard(),
+    pageBuilder: (context, animation, secondaryAnimation) => Dashboard(currentActivity: currentActivity),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(-1.0, 0.0);
       const end = Offset.zero;

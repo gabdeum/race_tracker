@@ -10,21 +10,25 @@ class ActivityEntry {
   double distance = 0; // distance in meters
   double duration = 0; //elapsed time in seconds
   StreamSubscription? locationSubscription;
+  bool isCancelled = true;
 
   ActivityEntry();
 
   Stream<LocationData> locationStream = const Stream.empty();
 
-  startRecording() async {
+  Future startRecording() async {
 
     print('---------START---------');
 
     location = await getLocation();
     time = location?.time;
 
-    if(locationSubscription == null){
+    if(locationSubscription == null || isCancelled){
 
-      print('locationSubscription is null: recreating subscription');
+      print('locationSubscription is null or cancelled: recreating subscription');
+
+      isCancelled = false;
+
       locationStream = getLocationStream();
       locationSubscription = locationStream.listen((event) async {
         distance += calculateDistance(location!.latitude!, location!.longitude!, event.latitude!, event.longitude!);
@@ -38,11 +42,14 @@ class ActivityEntry {
         print('time: $time - lat: ${location?.latitude} - lon: ${location?.longitude} - duration: ${duration}s - distance: ${distance}m');
 
       });
+
     }
-    else if(locationSubscription!.isPaused){
-      print('locationSubscription is NOT null: resuming subscription');
-      locationSubscription?.resume();
+
+    else{
+      print('locationSubscription not cancelled: doing nothing');
     }
+
+    return null;
 
   }
 
@@ -51,10 +58,10 @@ class ActivityEntry {
     locationSubscription?.pause();
   }
 
-  stopRecording(){
+  Future? stopRecording() {
     print('---------STOP----------');
-    locationSubscription?.cancel();
-    locationSubscription = null;
+    isCancelled = true;
+    return locationSubscription?.cancel();
   }
 
   Future<LocationData> getLocation() async {

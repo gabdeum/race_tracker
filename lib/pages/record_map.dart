@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,7 +6,6 @@ import 'package:race_tracker/services/activity_entry.dart';
 import 'package:race_tracker/services/colors.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../services/activity.dart';
-import 'dashboard.dart';
 
 class RecordMap extends StatefulWidget {
 
@@ -29,8 +27,6 @@ class _RecordMapState extends State<RecordMap> {
 
   @override
   Widget build(BuildContext context) {
-
-    widget.currentActivity?.startRecording();
 
     final Activity activityPlaceholder = Activity(activityId: 'activity01', activityName: 'Afternoon run', activityType: 'run', activityDateTime: DateTime(1991, 3, 7, 23, 50), activityLocation: {"locationName" : "Versailles, FR"}, activityDistance: 13400, activityMovingTime: 4534);
     final widthScreen = MediaQuery.of(context).size.width;
@@ -113,12 +109,13 @@ class _BottomBarRecordState extends State<BottomBarRecord> {
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
       color: Colors.white,
       height: 90,
       width: widget.widthScreen,
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center,children: [
-        Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: (widget.currentActivity?.locationSubscription?.isPaused ?? false) ? widget.widthScreen * 0.045 : widget.widthScreen * 0.08),
+        Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: (widget.currentActivity?.isCancelled ?? false) && (widget.currentActivity?.locationSubscription != null) ? widget.widthScreen * 0.045 : widget.widthScreen * 0.08),
           child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 IconButton(onPressed: (){}, icon: const Icon(Icons.directions, size: 25, color: primaryColorDark,)),
@@ -143,26 +140,34 @@ class _BottomBarRecordState extends State<BottomBarRecord> {
                 ),
               ],
           ),),),
-        (widget.currentActivity?.locationSubscription?.isPaused ?? false) ?
+        (widget.currentActivity?.locationSubscription == null) ?
+        FloatingActionButton(
+          heroTag: 'heroStartButton',
+          backgroundColor: primaryColorDark,
+          onPressed: (){
+            widget.currentActivity?.startRecording().then((value) => setState((){}));
+          },
+          child: Text('START', style: Theme.of(context).textTheme.bodySmall?.merge(const TextStyle(color: primaryTextColor)),),
+        ) :
+        (widget.currentActivity?.isCancelled ?? false) ?
         Row(children: [
           Container(
             decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: primaryColorDark, width: 2)),
             child: FloatingActionButton(
-              heroTag: 'heroStopButton',
+              heroTag: 'heroResumeButton',
               backgroundColor: primaryTextColor,
               onPressed: (){
-                widget.currentActivity?.locationSubscription?.resume();
-                setState(() {});
+                widget.currentActivity?.startRecording().then((value) => setState(() {}));
               },
               child: Text('RESUME', style: Theme.of(context).textTheme.bodySmall?.merge(const TextStyle(color: primaryColorDark)),),
             ),
           ),
           const SizedBox(width: 10,),
           FloatingActionButton(
-            heroTag: 'heroStopButton',
+            heroTag: 'heroFinishButton',
             backgroundColor: primaryColorDark,
             onPressed: (){
-              widget.currentActivity?.locationSubscription?.resume();
+              widget.currentActivity?.stopRecording();
               setState(() {});
             },
             child: Text('FINISH', style: Theme.of(context).textTheme.bodySmall?.merge(const TextStyle(color: primaryTextColor)),),
@@ -172,17 +177,16 @@ class _BottomBarRecordState extends State<BottomBarRecord> {
           heroTag: 'heroStopButton',
           backgroundColor: primaryColorDark,
           onPressed: (){
-            widget.currentActivity?.locationSubscription != null ? widget.currentActivity?.pauseRecording() : null;
+            widget.currentActivity?.locationSubscription != null ? widget.currentActivity?.stopRecording()?.then((value) => null) : null;
             setState(() {});
             },
           child: SvgPicture.asset('assets/custom_icons/stop_icon.svg', width: 20,),
         ),
-        Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: (widget.currentActivity?.locationSubscription?.isPaused ?? false) ? widget.widthScreen * 0.04 : widget.widthScreen * 0.08),
+        Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: ((widget.currentActivity?.isCancelled ?? false) && (widget.currentActivity?.locationSubscription != null)) ? widget.widthScreen * 0.045 : widget.widthScreen * 0.08),
             child: DropdownButtonHideUnderline(
               child: DecoratedBox(
                 decoration: BoxDecoration(border: Border.all(color: primaryColorDark, width:2),borderRadius: BorderRadius.circular(50)),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                child: Padding(padding: const EdgeInsets.fromLTRB(15, 5, 5, 5), //symmetric(vertical: 5, horizontal: 15),
                   child: DropdownButton(
                     isExpanded: true,
                     isDense: true,

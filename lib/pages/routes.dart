@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../services/activity_entry.dart';
 import '../widgets/bottom_bar.dart';
 
 class Routes extends StatelessWidget {
-  const Routes({Key? key}) : super(key: key);
+
+  final ActivityEntry? currentActivity;
+
+  const Routes({Key? key, this.currentActivity}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +17,7 @@ class Routes extends StatelessWidget {
       ),
       bottomNavigationBar: Hero(
           tag: 'bottomBar',
-          child: BottomBar(dashboard: false)),
+          child: BottomBar(dashboard: false, currentActivity: currentActivity,)),
       // drawer: const Drawer(),
     );
   }

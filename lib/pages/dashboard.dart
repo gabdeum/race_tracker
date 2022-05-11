@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+import 'package:race_tracker/services/activity_entry.dart';
 import '../services/activity.dart';
 import '../widgets/activity_card.dart';
 import '../widgets/bottom_bar.dart';
@@ -7,7 +8,9 @@ import '../widgets/carousel.dart';
 
 class Dashboard extends StatelessWidget {
 
-  Dashboard({Key? key}) : super(key: key);
+  final ActivityEntry? currentActivity;
+
+  Dashboard({this.currentActivity, Key? key}) : super(key: key);
 
   final Map<String,DateTime?> personalBestTimes = {
     "marathon" : DateTime(1970, 1, 1, 2, 48, 34),
@@ -52,7 +55,7 @@ class Dashboard extends StatelessWidget {
               )
             ],
           ),
-          Hero(tag: 'bottomBar', child: BottomBar(dashboard: true,))
+          Hero(tag: 'bottomBar', child: BottomBar(dashboard: true, currentActivity: currentActivity,))
         ],
       ),
     );
