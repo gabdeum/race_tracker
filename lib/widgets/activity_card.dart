@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
-import '../services/DisplayData.dart';
+import '../services/display_data.dart';
 import '../services/activity.dart';
 import '../services/colors.dart';
 

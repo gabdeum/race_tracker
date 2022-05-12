@@ -41,11 +41,14 @@ String formatPace(int movingTime, int distance){
 
   String formattedPace = "";
 
-  double pace = movingTime * 1000 / (distance * 60);
-  int paceMin = pace.truncate();
-  int paceSec = ((pace - paceMin) * 60).round();
+  if(distance != 0){
+    double pace = movingTime * 1000 / (distance * 60);
+    int paceMin = pace.truncate();
+    int paceSec = ((pace - paceMin) * 60).round();
 
-  formattedPace = paceMin.toString() + "' " + paceSec.toString() + " /K";
+    formattedPace = paceMin.toString() + "' " + paceSec.toString().padLeft(2, '0') + " /K";
+  }
+  else{formattedPace = ' -- ';}
 
   return formattedPace;
 

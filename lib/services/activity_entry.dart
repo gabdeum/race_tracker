@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:flutter/cupertino.dart';
 import 'package:location/location.dart';
 
 class ActivityEntry {
@@ -11,8 +12,9 @@ class ActivityEntry {
   double duration = 0; //elapsed time in seconds
   StreamSubscription? locationSubscription;
   bool isCancelled = true;
+  void Function() onLocationChange;
 
-  ActivityEntry();
+  ActivityEntry({required this.onLocationChange});
 
   Stream<LocationData> locationStream = const Stream.empty();
 
@@ -31,6 +33,7 @@ class ActivityEntry {
 
       locationStream = getLocationStream();
       locationSubscription = locationStream.listen((event) async {
+
         distance += calculateDistance(location!.latitude!, location!.longitude!, event.latitude!, event.longitude!);
         location = event;
 
@@ -38,6 +41,8 @@ class ActivityEntry {
           duration += (event.time! - time!)/1000;
           time = event.time;
         }
+
+        onLocationChange();
 
         print('time: $time - lat: ${location?.latitude} - lon: ${location?.longitude} - duration: ${duration}s - distance: ${distance}m');
 
@@ -53,15 +58,16 @@ class ActivityEntry {
 
   }
 
-  pauseRecording(){
-    print('---------PAUSE---------');
-    locationSubscription?.pause();
-  }
-
   Future? stopRecording() {
     print('---------STOP----------');
+
     isCancelled = true;
     return locationSubscription?.cancel();
+  }
+
+  Future? finishRecording() {
+    print('---------FINISH--------');
+    return null;
   }
 
   Future<LocationData> getLocation() async {

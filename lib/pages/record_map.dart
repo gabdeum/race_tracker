@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:race_tracker/services/DisplayData.dart';
+import 'package:race_tracker/services/display_data.dart';
 import 'package:race_tracker/services/activity_entry.dart';
 import 'package:race_tracker/services/colors.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../services/activity.dart';
+import '../services/bottom_bar_record.dart';
 
 class RecordMap extends StatefulWidget {
 
@@ -21,7 +22,7 @@ class _RecordMapState extends State<RecordMap> {
 
   @override
   void initState() {
-    widget.currentActivity == null ? widget.currentActivity = ActivityEntry() : null;
+    widget.currentActivity == null ? widget.currentActivity = ActivityEntry(onLocationChange: (){setState(() {});}) : null;
     super.initState();
   }
 
@@ -57,18 +58,18 @@ class _RecordMapState extends State<RecordMap> {
                     children: [
                       Column(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [
                         Row(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                          DisplayData(title: 'Distance', dataStr: activityPlaceholder.activityType != 'swim' ?
-                          '${((activityPlaceholder.activityDistance) / 1000).toStringAsFixed(2)} K' : '${activityPlaceholder.activityDistance.toString()} m',
+                          DisplayData(title: 'Distance', dataStr: (widget.currentActivity?.activityType ?? 'run') != 'swim' ?
+                          '${((widget.currentActivity?.distance ?? 0) / 1000).toStringAsFixed(2)} K' : '${(widget.currentActivity?.distance.round() ?? 0).toString()} m',
                             titleStyle: Theme.of(context).textTheme.bodyMedium, dataStrStyle: Theme.of(context).textTheme.titleLarge,),
                           SizedBox(width: 0.1 * widthScreen,),
-                          DisplayData(title: 'Time', dataStr: formatMovingTime(activityPlaceholder.activityMovingTime),
+                          DisplayData(title: 'Time', dataStr: formatMovingTime(widget.currentActivity?.duration.round() ?? 0),
                             titleStyle: Theme.of(context).textTheme.bodyMedium, dataStrStyle: Theme.of(context).textTheme.titleLarge,),
                         ],),
                         Row(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                          DisplayData(title: 'Avg Pace', dataStr: formatPace(activityPlaceholder.activityMovingTime, activityPlaceholder.activityDistance),
+                          DisplayData(title: 'Avg Pace', dataStr: formatPace(widget.currentActivity?.duration.round() ?? 0, widget.currentActivity?.distance.round() ?? 0),
                             titleStyle: Theme.of(context).textTheme.bodyMedium, dataStrStyle: Theme.of(context).textTheme.titleLarge,),
                           SizedBox(width: 0.1 * widthScreen,),
-                          DisplayData(title: 'Pace', dataStr: formatPace(activityPlaceholder.activityMovingTime, activityPlaceholder.activityDistance),
+                          DisplayData(title: 'Pace', dataStr: formatPace(widget.currentActivity?.duration.round() ?? 0, widget.currentActivity?.distance.round() ?? 0),
                             titleStyle: Theme.of(context).textTheme.bodyMedium, dataStrStyle: Theme.of(context).textTheme.titleLarge,),
                         ],)
                       ],),
@@ -85,131 +86,5 @@ class _RecordMapState extends State<RecordMap> {
         ],
       ),
     );
-  }
-}
-
-class BottomBarRecord extends StatefulWidget {
-  const BottomBarRecord({
-    Key? key,
-    required this.widthScreen,
-    required this.currentActivity
-  }) : super(key: key);
-
-  final double widthScreen;
-  final ActivityEntry? currentActivity;
-
-  @override
-  State<BottomBarRecord> createState() => _BottomBarRecordState();
-}
-
-class _BottomBarRecordState extends State<BottomBarRecord> {
-
-  String activityTypeValue = 'run';
-  String recordTypeValue = 'Normal';
-
-  @override
-  Widget build(BuildContext context) {
-
-    return Container(
-      color: Colors.white,
-      height: 90,
-      width: widget.widthScreen,
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center,children: [
-        Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: (widget.currentActivity?.isCancelled ?? false) && (widget.currentActivity?.locationSubscription != null) ? widget.widthScreen * 0.045 : widget.widthScreen * 0.08),
-          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                IconButton(onPressed: (){}, icon: const Icon(Icons.directions, size: 25, color: primaryColorDark,)),
-                DropdownButtonHideUnderline(
-                  child: DropdownButton(
-                    icon: const Visibility(visible:false, child: Icon(Icons.arrow_downward)),
-                    borderRadius: BorderRadius.circular(15),
-                    value: activityTypeValue,
-                    items: <String>['run', 'bike', 'swim']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Center(child: SvgPicture.asset('assets/custom_icons/${value}_icon.svg', width: 40, color: primaryColorDark,)),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        activityTypeValue = newValue!;
-                      });
-                    },
-                  ),
-                ),
-              ],
-          ),),),
-        (widget.currentActivity?.locationSubscription == null) ?
-        FloatingActionButton(
-          heroTag: 'heroStartButton',
-          backgroundColor: primaryColorDark,
-          onPressed: (){
-            widget.currentActivity?.startRecording().then((value) => setState((){}));
-          },
-          child: Text('START', style: Theme.of(context).textTheme.bodySmall?.merge(const TextStyle(color: primaryTextColor)),),
-        ) :
-        (widget.currentActivity?.isCancelled ?? false) ?
-        Row(children: [
-          Container(
-            decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: primaryColorDark, width: 2)),
-            child: FloatingActionButton(
-              heroTag: 'heroResumeButton',
-              backgroundColor: primaryTextColor,
-              onPressed: (){
-                widget.currentActivity?.startRecording().then((value) => setState(() {}));
-              },
-              child: Text('RESUME', style: Theme.of(context).textTheme.bodySmall?.merge(const TextStyle(color: primaryColorDark)),),
-            ),
-          ),
-          const SizedBox(width: 10,),
-          FloatingActionButton(
-            heroTag: 'heroFinishButton',
-            backgroundColor: primaryColorDark,
-            onPressed: (){
-              widget.currentActivity?.stopRecording();
-              setState(() {});
-            },
-            child: Text('FINISH', style: Theme.of(context).textTheme.bodySmall?.merge(const TextStyle(color: primaryTextColor)),),
-          ),
-        ],) :
-        FloatingActionButton(
-          heroTag: 'heroStopButton',
-          backgroundColor: primaryColorDark,
-          onPressed: (){
-            widget.currentActivity?.locationSubscription != null ? widget.currentActivity?.stopRecording()?.then((value) => null) : null;
-            setState(() {});
-            },
-          child: SvgPicture.asset('assets/custom_icons/stop_icon.svg', width: 20,),
-        ),
-        Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: ((widget.currentActivity?.isCancelled ?? false) && (widget.currentActivity?.locationSubscription != null)) ? widget.widthScreen * 0.045 : widget.widthScreen * 0.08),
-            child: DropdownButtonHideUnderline(
-              child: DecoratedBox(
-                decoration: BoxDecoration(border: Border.all(color: primaryColorDark, width:2),borderRadius: BorderRadius.circular(50)),
-                child: Padding(padding: const EdgeInsets.fromLTRB(15, 5, 5, 5), //symmetric(vertical: 5, horizontal: 15),
-                  child: DropdownButton(
-                    isExpanded: true,
-                    isDense: true,
-                    icon: const Icon(Icons.keyboard_arrow_up_outlined, color: primaryColorDark,),
-                    borderRadius: BorderRadius.circular(15),
-                    value: recordTypeValue,
-                    items: <String>['Normal', 'Assist', 'Race']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value, style: Theme.of(context).textTheme.bodyMedium?.merge(const TextStyle(color: primaryColorDark)),),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        recordTypeValue = newValue!;
-                      });
-                    },
-                  ),
-                ),
-              ),
-            ),
-        ),),
-      ],));
   }
 }
