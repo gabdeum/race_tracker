@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:flutter/cupertino.dart';
 import 'package:location/location.dart';
 
 class ActivityEntry {
@@ -12,17 +11,15 @@ class ActivityEntry {
   double duration = 0; //elapsed time in seconds
   StreamSubscription? locationSubscription;
   bool isCancelled = true;
-  void Function() onLocationChange;
+  void Function() onLocationChanged;
+  Stream<LocationData> locationStream;
 
-  ActivityEntry({required this.onLocationChange});
-
-  Stream<LocationData> locationStream = const Stream.empty();
+  ActivityEntry({required this.onLocationChanged, required this.locationStream});
 
   Future startRecording() async {
 
     print('---------START---------');
 
-    location = await getLocation();
     time = location?.time;
 
     if(locationSubscription == null || isCancelled){
@@ -30,21 +27,25 @@ class ActivityEntry {
       print('locationSubscription is null or cancelled: recreating subscription');
 
       isCancelled = false;
+      locationSubscription = locationStream.listen((event) {
+        print('location: $location');
 
-      locationStream = getLocationStream();
-      locationSubscription = locationStream.listen((event) async {
+        if (location != null){
+          distance += calculateDistance(location!.latitude!, location!.longitude!, event.latitude!, event.longitude!);
+          location = event;
 
-        distance += calculateDistance(location!.latitude!, location!.longitude!, event.latitude!, event.longitude!);
-        location = event;
+          if (time != null && event.time != null){
+            duration += (event.time! - time!)/1000;
+            time = event.time;
+          }
 
-        if (time != null && event.time != null){
-          duration += (event.time! - time!)/1000;
-          time = event.time;
+          onLocationChanged();
+
+          print('time: $time - lat: ${location?.latitude} - lon: ${location?.longitude} - duration: ${duration}s - distance: ${distance}m');
         }
-
-        onLocationChange();
-
-        print('time: $time - lat: ${location?.latitude} - lon: ${location?.longitude} - duration: ${duration}s - distance: ${distance}m');
+        else {
+          location = event;
+        }
 
       });
 
@@ -60,13 +61,14 @@ class ActivityEntry {
 
   Future? stopRecording() {
     print('---------STOP----------');
-
     isCancelled = true;
     return locationSubscription?.cancel();
   }
 
   Future? finishRecording() {
     print('---------FINISH--------');
+    distance = 0;
+    duration = 0;
     return null;
   }
 

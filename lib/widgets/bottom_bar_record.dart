@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'activity_entry.dart';
-import 'colors.dart';
+import '../services/activity_entry.dart';
+import '../services/colors.dart';
 
 class BottomBarRecord extends StatefulWidget {
   const BottomBarRecord({
     Key? key,
     required this.widthScreen,
-    required this.currentActivity
+    required this.currentActivity,
+    required this.callback
   }) : super(key: key);
 
   final double widthScreen;
   final ActivityEntry? currentActivity;
+  final VoidCallback callback;
 
   @override
   State<BottomBarRecord> createState() => _BottomBarRecordState();
@@ -51,6 +53,7 @@ class _BottomBarRecordState extends State<BottomBarRecord> {
                       setState(() {
                         _activityTypeValue = newValue!;
                         widget.currentActivity?.activityType = newValue;
+                        widget.callback();
                       });
                     },
                   ),
@@ -86,9 +89,29 @@ class _BottomBarRecordState extends State<BottomBarRecord> {
               child: FloatingActionButton(
                 heroTag: 'heroFinishButton',
                 backgroundColor: primaryColorDark,
-                onPressed: (){
-                  widget.currentActivity?.stopRecording();
-                  setState(() {});
+                onPressed: () async {
+                  await showDialog(context: context, builder: (BuildContext context){
+                    return AlertDialog(
+                      title: Text('Ending recording?', style: Theme.of(context).textTheme.headlineMedium?.merge(const TextStyle(color: primaryColorDark)),),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            widget.currentActivity?.finishRecording();
+                            Navigator.pop(context);
+                          },
+                          child: Text('Yes', style: Theme.of(context).textTheme.titleMedium?.merge(const TextStyle(color: primaryColorLight)),),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text('No', style: Theme.of(context).textTheme.titleMedium?.merge(const TextStyle(color: primaryColorLight)),),
+                        ),
+                      ],
+                    );
+                  });
+                  widget.callback();
                 },
                 child: Text('FINISH', style: Theme.of(context).textTheme.bodySmall?.merge(const TextStyle(color: primaryTextColor)),),
               ),
