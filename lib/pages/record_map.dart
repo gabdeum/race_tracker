@@ -157,8 +157,8 @@ class _LocationMapState extends State<LocationMap>
 
   @override
   void initState() {
-    mapController = MapController();
     super.initState();
+    mapController = MapController();
   }
 
   void _animatedMapMove(LatLng destLocation, double destZoom) {
@@ -197,8 +197,9 @@ class _LocationMapState extends State<LocationMap>
     return StreamBuilder<LocationData>(
       stream: widget.locationStream,
       builder: (context, snapshot) {
-        // (snapshot.data?.longitude != null || snapshot.data?.latitude != null) ? _animatedMapMove(LatLng(snapshot.data!.latitude!, snapshot.data!.longitude!), 10.0) : null;
+        (snapshot.data?.longitude != null && snapshot.data?.latitude != null) ? _animatedMapMove(LatLng(snapshot.data!.latitude!, snapshot.data!.longitude!), 16.0) : null;
         return FlutterMap(
+          mapController: mapController,
           options: MapOptions(
             center: (snapshot.data?.longitude != null || snapshot.data?.latitude != null) ? LatLng(snapshot.data!.latitude!, snapshot.data!.longitude!) : LatLng(0, 0),
             zoom: 3,
