@@ -4,11 +4,11 @@ import 'package:location/location.dart';
 
 class ActivityEntry {
 
-  double? time;
+  int time = DateTime.now().millisecondsSinceEpoch;
   LocationData? location;
   String activityType = 'run'; // run, bike or swim
   double distance = 0; // distance in meters
-  double duration = 0; //elapsed time in seconds
+  int duration = 0; //elapsed time in seconds
   StreamSubscription? locationSubscription;
   bool isCancelled = true;
   void Function() onLocationChanged;
@@ -20,7 +20,8 @@ class ActivityEntry {
 
     print('---------START---------');
 
-    time = location?.time;
+    time = DateTime.now().millisecondsSinceEpoch;
+    location = await locationStream.first;
 
     if(locationSubscription == null || isCancelled){
 
@@ -28,16 +29,14 @@ class ActivityEntry {
 
       isCancelled = false;
       locationSubscription = locationStream.listen((event) {
-        print('location: $location');
 
         if (location != null){
+
           distance += calculateDistance(location!.latitude!, location!.longitude!, event.latitude!, event.longitude!);
           location = event;
 
-          if (time != null && event.time != null){
-            duration += (event.time! - time!)/1000;
-            time = event.time;
-          }
+          duration += ((DateTime.now().millisecondsSinceEpoch - time)/1000).round();
+          time = DateTime.now().millisecondsSinceEpoch;
 
           onLocationChanged();
 
@@ -74,26 +73,8 @@ class ActivityEntry {
 
   Future<LocationData> getLocation() async {
 
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
     Location location = Location();
     LocationData _locationData;
-
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        print('Location service not enabled');
-      }
-    }
-
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        print('Location denied by user');
-      }
-    }
 
     _locationData = await location.getLocation();
 

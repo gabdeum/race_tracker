@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:location/location.dart';
 import 'package:race_tracker/services/display_data.dart';
 import 'package:race_tracker/services/activity_entry.dart';
@@ -45,11 +44,6 @@ class _RecordMapState extends State<RecordMap> {
 
     final widthScreen = MediaQuery.of(context).size.width;
 
-    locationStream = getLocationStream();
-
-    locationStream.listen((event) {
-      print('Hello');});
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -76,18 +70,17 @@ class _RecordMapState extends State<RecordMap> {
                     children: [
                       Column(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [
                         Row(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                          DisplayData(title: 'Distance', dataStr: (widget.currentActivity?.activityType ?? 'run') != 'swim' ?
-                          '${((widget.currentActivity?.distance ?? 0) / 1000).toStringAsFixed(2)} K' : '${(widget.currentActivity?.distance.round() ?? 0).toString()} m',
+                          DisplayData(title: 'Distance', dataStr: formatDistance(widget.currentActivity),
                             titleStyle: Theme.of(context).textTheme.bodyMedium, dataStrStyle: Theme.of(context).textTheme.titleLarge,),
                           SizedBox(width: 0.1 * widthScreen,),
-                          DisplayData(title: 'Time', dataStr: formatMovingTime(widget.currentActivity?.duration.round() ?? 0),
+                          DisplayData(title: 'Time', dataStr: formatMovingTime(widget.currentActivity?.duration ?? 0),
                             titleStyle: Theme.of(context).textTheme.bodyMedium, dataStrStyle: Theme.of(context).textTheme.titleLarge,),
                         ],),
                         Row(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                          DisplayData(title: 'Avg Pace', dataStr: formatPace(widget.currentActivity?.duration.round() ?? 0, widget.currentActivity?.distance.round() ?? 0),
+                          DisplayData(title: 'Avg Pace', dataStr: formatPace(widget.currentActivity?.duration ?? 0, widget.currentActivity?.distance.round() ?? 0),
                             titleStyle: Theme.of(context).textTheme.bodyMedium, dataStrStyle: Theme.of(context).textTheme.titleLarge,),
                           SizedBox(width: 0.1 * widthScreen,),
-                          DisplayData(title: 'Current Pace', dataStr: formatPace(widget.currentActivity?.duration.round() ?? 0, widget.currentActivity?.distance.round() ?? 0),
+                          DisplayData(title: 'Current Pace', dataStr: formatPace(widget.currentActivity?.duration ?? 0, widget.currentActivity?.distance.round() ?? 0),
                             titleStyle: Theme.of(context).textTheme.bodyMedium, dataStrStyle: Theme.of(context).textTheme.titleLarge,),
                         ],)
                       ],),
@@ -98,7 +91,8 @@ class _RecordMapState extends State<RecordMap> {
                 ),
               ),
             ),
-            body: Image.asset('assets/placeholders/record_map.png')//LocationMap(locationStream: locationStream,)
+            body: LocationMap(locationStream: locationStream,),
+            // body: Image.asset('assets/placeholders/record_map.png', fit: BoxFit.fitWidth,alignment: Alignment.topCenter,),
           ),
           Positioned(bottom: 0,child: BottomBarRecord(
             widthScreen: widthScreen,
@@ -146,8 +140,8 @@ class _RecordMapState extends State<RecordMap> {
 
 class LocationMap extends StatefulWidget {
   const LocationMap({
-    Key? key,
     required this.locationStream,
+    Key? key
   }) : super(key: key);
 
   final Stream<LocationData> locationStream;
@@ -203,11 +197,11 @@ class _LocationMapState extends State<LocationMap>
     return StreamBuilder<LocationData>(
       stream: widget.locationStream,
       builder: (context, snapshot) {
-        (snapshot.data?.longitude != null || snapshot.data?.latitude != null) ? _animatedMapMove(LatLng(snapshot.data!.latitude!, snapshot.data!.longitude!), 10.0) : null;
+        // (snapshot.data?.longitude != null || snapshot.data?.latitude != null) ? _animatedMapMove(LatLng(snapshot.data!.latitude!, snapshot.data!.longitude!), 10.0) : null;
         return FlutterMap(
           options: MapOptions(
-            center: (snapshot.data?.longitude != null || snapshot.data?.latitude != null) ? LatLng(snapshot.data!.latitude!, snapshot.data!.longitude!) : null,
-            zoom: 2,
+            center: (snapshot.data?.longitude != null || snapshot.data?.latitude != null) ? LatLng(snapshot.data!.latitude!, snapshot.data!.longitude!) : LatLng(0, 0),
+            zoom: 3,
           ),
           layers: [
             TileLayerOptions(
