@@ -1,33 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:location/location.dart';
+import '../services/colors.dart';
 
-class AnimatedMapControllerPage extends StatefulWidget {
-  static const String route = 'map_controller_animated';
+class LocationMap extends StatefulWidget {
+  const LocationMap({
+    required this.locationStream,
+    Key? key
+  }) : super(key: key);
 
-  const AnimatedMapControllerPage({Key? key}) : super(key: key);
+  final Stream<LocationData> locationStream;
 
   @override
-  AnimatedMapControllerPageState createState() {
-    return AnimatedMapControllerPageState();
-  }
+  State<LocationMap> createState() => _LocationMapState();
 }
 
-class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
-    with TickerProviderStateMixin {
-  // Note the addition of the TickerProviderStateMixin here. If you are getting an error like
-  // 'The class 'TickerProviderStateMixin' can't be used as a mixin because it extends a class other than Object.'
-  // in your IDE, you can probably fix it by adding an analysis_options.yaml file to your project
-  // with the following content:
-  //  analyzer:
-  //    language:
-  //      enableSuperMixins: true
-  // See https://github.com/flutter/flutter/issues/14317#issuecomment-361085869
-  // This project didn't require that change, so YMMV.
-
-  static LatLng london = LatLng(51.5, -0.09);
-  static LatLng paris = LatLng(48.8566, 2.3522);
-  static LatLng dublin = LatLng(53.3498, -6.2603);
+class _LocationMapState extends State<LocationMap>
+    with TickerProviderStateMixin{
 
   late final MapController mapController;
 
@@ -69,126 +59,73 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
 
   @override
   Widget build(BuildContext context) {
-    var markers = <Marker>[
-      Marker(
-        width: 80.0,
-        height: 80.0,
-        point: london,
-        builder: (ctx) => Container(
-          key: const Key('blue'),
-          child: const FlutterLogo(),
-        ),
-      ),
-      Marker(
-        width: 80.0,
-        height: 80.0,
-        point: dublin,
-        builder: (ctx) => const FlutterLogo(
-          key: Key('green'),
-          textColor: Colors.green,
-        ),
-      ),
-      Marker(
-        width: 80.0,
-        height: 80.0,
-        point: paris,
-        builder: (ctx) => Container(
-          key: const Key('purple'),
-          child: const FlutterLogo(textColor: Colors.purple),
-        ),
-      ),
-    ];
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Animated MapController')),
-        // drawer: buildDrawer(context, AnimatedMapControllerPage.route),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Row(
-                children: <Widget>[
-                  MaterialButton(
-                    onPressed: () {
-                      _animatedMapMove(london, 10.0);
-                    },
-                    child: const Text('London'),
-                  ),
-                  MaterialButton(
-                    onPressed: () {
-                      _animatedMapMove(paris, 5.0);
-                    },
-                    child: const Text('Paris'),
-                  ),
-                  MaterialButton(
-                    onPressed: () {
-                      _animatedMapMove(dublin, 5.0);
-                    },
-                    child: const Text('Dublin'),
-                  ),
-                ],
-              ),
+    return StreamBuilder<LocationData>(
+        stream: widget.locationStream,
+        builder: (context, snapshot) {
+          (snapshot.data?.longitude != null && snapshot.data?.latitude != null) ? _animatedMapMove(LatLng(snapshot.data!.latitude!, snapshot.data!.longitude!), 16.0) : null;
+          // (snapshot.data?.longitude != null && snapshot.data?.latitude != null) ? mapController.move(LatLng(snapshot.data!.latitude!, snapshot.data!.longitude!), 16.0) : null;
+          return FlutterMap(
+            mapController: mapController,
+            options: MapOptions(
+              center: (snapshot.data?.longitude != null || snapshot.data?.latitude != null) ? LatLng(snapshot.data!.latitude!, snapshot.data!.longitude!) : LatLng(0, 0),
+              zoom: 3,
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Row(
-                children: <Widget>[
-                  MaterialButton(
-                    onPressed: () {
-                      var bounds = LatLngBounds();
-                      bounds.extend(dublin);
-                      bounds.extend(paris);
-                      bounds.extend(london);
-                      mapController.fitBounds(
-                        bounds,
-                        options: const FitBoundsOptions(
-                          padding: EdgeInsets.only(left: 15.0, right: 15.0),
+            layers: [
+              TileLayerOptions(
+                urlTemplate: "https://api.mapbox.com/styles/v1/gabdeum/cl349btvk005i14ql6zqt0pgy/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2FiZGV1bSIsImEiOiJjbDF4OXo2ZWswMHJnM21xb2U1bGY5MHVhIn0.t_cdWXNtOO8Y1bOfU9RpyQ",
+                additionalOptions: {
+                  'accessToken': 'pk.eyJ1IjoiZ2FiZGV1bSIsImEiOiJjbDF4OXo2ZWswMHJnM21xb2U1bGY5MHVhIn0.t_cdWXNtOO8Y1bOfU9RpyQ',
+                  'id': 'mapbox.mapbox-streets-v8'
+                },
+              ),
+              (snapshot.data?.longitude != null || snapshot.data?.latitude != null) ? MarkerLayerOptions(
+                markers: [
+                  Marker(
+                    width: 70.0,
+                    height: 70.0,
+                    point: LatLng(snapshot.data!.latitude!, snapshot.data!.longitude!),
+                    builder: (ctx) =>
+                        Stack(
+                          children: [
+                            Center(
+                              child: Container(
+                                height: 24,
+                                width: 24,
+                                decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: Container(
+                                height: 18,
+                                width: 18,
+                                decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: primaryColorDark
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: Container(
+                                height: 70,
+                                width: 70,
+                                decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Color.fromRGBO(26, 90, 255, 0.3)
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      );
-                    },
-                    child: const Text('Fit Bounds'),
-                  ),
-                  MaterialButton(
-                    onPressed: () {
-                      var bounds = LatLngBounds();
-                      bounds.extend(dublin);
-                      bounds.extend(paris);
-                      bounds.extend(london);
-
-                      var centerZoom =
-                      mapController.centerZoomFitBounds(bounds);
-                      _animatedMapMove(centerZoom.center, centerZoom.zoom);
-                    },
-                    child: const Text('Fit Bounds animated'),
                   ),
                 ],
-              ),
-            ),
-            Flexible(
-              child: FlutterMap(
-                mapController: mapController,
-                options: MapOptions(
-                    center: LatLng(51.5, -0.09),
-                    zoom: 5.0,
-                    maxZoom: 10.0,
-                    minZoom: 3.0),
-                layers: [
-                  TileLayerOptions(
-                    urlTemplate: "https://api.mapbox.com/styles/v1/gabdeum/cl349btvk005i14ql6zqt0pgy/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2FiZGV1bSIsImEiOiJjbDF4OXo2ZWswMHJnM21xb2U1bGY5MHVhIn0.t_cdWXNtOO8Y1bOfU9RpyQ",
-                    additionalOptions: {
-                      'accessToken': 'pk.eyJ1IjoiZ2FiZGV1bSIsImEiOiJjbDF4OXo2ZWswMHJnM21xb2U1bGY5MHVhIn0.t_cdWXNtOO8Y1bOfU9RpyQ',
-                      'id': 'mapbox.mapbox-streets-v8'
-                    },
-                  ),
-                  MarkerLayerOptions(markers: markers)
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+              ) : MarkerLayerOptions(),
+            ],
+          );
+        }
     );
   }
 }

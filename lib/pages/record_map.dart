@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
-import 'package:race_tracker/services/display_data.dart';
 import 'package:race_tracker/services/activity_entry.dart';
 import 'package:race_tracker/services/colors.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../widgets/bottom_bar_record.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
-
-import '../widgets/location_map.dart';
+import '../widgets/sliding_up_panel_record.dart';
 
 //ignore: must_be_immutable
 class RecordMap extends StatefulWidget {
@@ -54,45 +49,10 @@ class _RecordMapState extends State<RecordMap> {
       ),
       body: Stack(
         children: [
-          SlidingUpPanel(
-            parallaxOffset: 0.5,
-            minHeight: 250,
-            maxHeight: 490,
-            parallaxEnabled: true,
-            borderRadius: const BorderRadius.only(topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),
-            panel: Padding(
-              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 0.1 * widthScreen),
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: SizedBox(
-                  height: 120,
-                  child: Stack(
-                    children: [
-                      Column(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [
-                        Row(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                          DisplayData(title: 'Distance', dataStr: formatDistance(widget.currentActivity),
-                            titleStyle: Theme.of(context).textTheme.bodyMedium, dataStrStyle: Theme.of(context).textTheme.titleLarge,),
-                          SizedBox(width: 0.1 * widthScreen,),
-                          DisplayData(title: 'Time', dataStr: formatMovingTime(widget.currentActivity?.duration ?? 0),
-                            titleStyle: Theme.of(context).textTheme.bodyMedium, dataStrStyle: Theme.of(context).textTheme.titleLarge,),
-                        ],),
-                        Row(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                          DisplayData(title: 'Avg Pace', dataStr: formatPace(widget.currentActivity?.duration ?? 0, widget.currentActivity?.distance.round() ?? 0),
-                            titleStyle: Theme.of(context).textTheme.bodyMedium, dataStrStyle: Theme.of(context).textTheme.titleLarge,),
-                          SizedBox(width: 0.1 * widthScreen,),
-                          DisplayData(title: 'Current Pace', dataStr: formatPace(widget.currentActivity?.duration ?? 0, widget.currentActivity?.distance.round() ?? 0),
-                            titleStyle: Theme.of(context).textTheme.bodyMedium, dataStrStyle: Theme.of(context).textTheme.titleLarge,),
-                        ],)
-                      ],),
-                      Positioned(top: 60, left: 0, right: 0 ,child: Container(height: 1,color: const Color.fromRGBO(0, 0, 0, 0.3),)),
-                      Positioned(top: 0, bottom: 0, left: widthScreen * 0.4 ,child: Container(width: 1,color: const Color.fromRGBO(0, 0, 0, 0.3),)),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            body: LocationMap(locationStream: locationStream,),
-            // body: Image.asset('assets/placeholders/record_map.png', fit: BoxFit.fitWidth,alignment: Alignment.topCenter,),
+          RecordSlidingUpPanel(
+            widthScreen: widthScreen,
+            currentActivity: widget.currentActivity,
+            locationStream: locationStream,
           ),
           Positioned(bottom: 0,child: BottomBarRecord(
             widthScreen: widthScreen,
@@ -100,6 +60,10 @@ class _RecordMapState extends State<RecordMap> {
             callback: (){
               setState(() {});
             },
+            onStart: (){print('TEST_START');},
+            onFinish: (){print('TEST_FINISH');},
+            onResume: (){print('TEST_RESUME');},
+            onStop: (){print('TEST_STOP');},
           )),
         ],
       ),
@@ -136,103 +100,4 @@ class _RecordMapState extends State<RecordMap> {
 
   }
 
-}
-
-class LocationMap extends StatefulWidget {
-  const LocationMap({
-    required this.locationStream,
-    Key? key
-  }) : super(key: key);
-
-  final Stream<LocationData> locationStream;
-
-  @override
-  State<LocationMap> createState() => _LocationMapState();
-}
-
-class _LocationMapState extends State<LocationMap>
-    with TickerProviderStateMixin{
-
-  late final MapController mapController;
-
-  @override
-  void initState() {
-    super.initState();
-    mapController = MapController();
-  }
-
-  void _animatedMapMove(LatLng destLocation, double destZoom) {
-    // Create some tweens. These serve to split up the transition from one location to another.
-    // In our case, we want to split the transition be<tween> our current map center and the destination.
-    final latTween = Tween<double>(begin: mapController.center.latitude, end: destLocation.latitude);
-    final lngTween = Tween<double>(begin: mapController.center.longitude, end: destLocation.longitude);
-    final zoomTween = Tween<double>(begin: mapController.zoom, end: destZoom);
-
-    // Create a animation controller that has a duration and a TickerProvider.
-    var controller = AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
-    // The animation determines what path the animation will take. You can try different Curves values, although I found
-    // fastOutSlowIn to be my favorite.
-    Animation<double> animation = CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
-
-    controller.addListener(() {
-      mapController.move(
-          LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
-          zoomTween.evaluate(animation));
-    });
-
-    animation.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        controller.dispose();
-      } else if (status == AnimationStatus.dismissed) {
-        controller.dispose();
-      }
-    });
-
-    controller.forward();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-
-    return StreamBuilder<LocationData>(
-      stream: widget.locationStream,
-      builder: (context, snapshot) {
-        (snapshot.data?.longitude != null && snapshot.data?.latitude != null) ? _animatedMapMove(LatLng(snapshot.data!.latitude!, snapshot.data!.longitude!), 16.0) : null;
-        return FlutterMap(
-          mapController: mapController,
-          options: MapOptions(
-            center: (snapshot.data?.longitude != null || snapshot.data?.latitude != null) ? LatLng(snapshot.data!.latitude!, snapshot.data!.longitude!) : LatLng(0, 0),
-            zoom: 3,
-          ),
-          layers: [
-            TileLayerOptions(
-              urlTemplate: "https://api.mapbox.com/styles/v1/gabdeum/cl349btvk005i14ql6zqt0pgy/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ2FiZGV1bSIsImEiOiJjbDF4OXo2ZWswMHJnM21xb2U1bGY5MHVhIn0.t_cdWXNtOO8Y1bOfU9RpyQ",
-              additionalOptions: {
-                'accessToken': 'pk.eyJ1IjoiZ2FiZGV1bSIsImEiOiJjbDF4OXo2ZWswMHJnM21xb2U1bGY5MHVhIn0.t_cdWXNtOO8Y1bOfU9RpyQ',
-                'id': 'mapbox.mapbox-streets-v8'
-              },
-            ),
-            (snapshot.data?.longitude != null || snapshot.data?.latitude != null) ? MarkerLayerOptions(
-              markers: [
-                Marker(
-                  width: 20.0,
-                  height: 20.0,
-                  point: LatLng(snapshot.data!.latitude!, snapshot.data!.longitude!),
-                  builder: (ctx) =>
-                      Container(
-                        // height: 20,
-                        // width: 20,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: primaryColorDark
-                        ),
-                      ),
-                ),
-              ],
-            ) : MarkerLayerOptions(),
-          ],
-        );
-      }
-    );
-  }
 }

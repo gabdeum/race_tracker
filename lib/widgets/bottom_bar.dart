@@ -102,7 +102,7 @@ class _BottomBarState extends State<BottomBar> {
                     onTap: () {
                       Navigator.of(context).push(_navigateToRecord(widget.currentActivity)).then((value) {
                         setState(() {
-                          widget.currentActivity = value as ActivityEntry;
+                          value is ActivityEntry ? widget.currentActivity = value : null;
                         });
                       });
                     },

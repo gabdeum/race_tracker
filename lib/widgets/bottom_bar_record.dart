@@ -8,12 +8,21 @@ class BottomBarRecord extends StatefulWidget {
     Key? key,
     required this.widthScreen,
     required this.currentActivity,
-    required this.callback
+    required this.callback,
+    this.onFinish,
+    this.onStart,
+    this.onStop,
+    this.onResume,
   }) : super(key: key);
 
   final double widthScreen;
   final ActivityEntry? currentActivity;
   final VoidCallback callback;
+
+  final VoidCallback? onResume;
+  final VoidCallback? onStop;
+  final VoidCallback? onStart;
+  final VoidCallback? onFinish;
 
   @override
   State<BottomBarRecord> createState() => _BottomBarRecordState();
@@ -66,7 +75,10 @@ class _BottomBarRecordState extends State<BottomBarRecord> {
               heroTag: 'heroStartButton',
               backgroundColor: primaryColorDark,
               onPressed: (){
-                widget.currentActivity?.startRecording().then((value) => setState((){}));
+                widget.currentActivity?.startRecording().then((value){
+                  widget.onStart != null ? widget.onStart!() : null;
+                  setState((){});
+                });
               },
               child: Text('START', style: Theme.of(context).textTheme.bodySmall?.merge(const TextStyle(color: primaryTextColor)),),
             ),
@@ -79,7 +91,10 @@ class _BottomBarRecordState extends State<BottomBarRecord> {
                 heroTag: 'heroResumeButton',
                 backgroundColor: primaryTextColor,
                 onPressed: (){
-                  widget.currentActivity?.startRecording().then((value) => setState(() {}));
+                  widget.currentActivity?.startRecording().then((value){
+                    widget.onResume != null ? widget.onResume!() : null;
+                    setState((){});
+                  });
                 },
                 child: Text('RESUME', style: Theme.of(context).textTheme.bodySmall?.merge(const TextStyle(color: primaryColorDark)),),
               ),
@@ -98,6 +113,7 @@ class _BottomBarRecordState extends State<BottomBarRecord> {
                         TextButton(
                           onPressed: () {
                             widget.currentActivity?.finishRecording();
+                            widget.onFinish != null ? widget.onFinish!() : null;
                             Navigator.pop(context);
                           },
                           child: Text('Yes', style: Theme.of(context).textTheme.titleMedium?.merge(const TextStyle(color: primaryColorLight)),),
@@ -123,7 +139,8 @@ class _BottomBarRecordState extends State<BottomBarRecord> {
               backgroundColor: primaryColorDark,
               onPressed: (){
                 widget.currentActivity?.locationSubscription != null ? widget.currentActivity?.stopRecording()?.then((value) => null) : null;
-                setState(() {});
+                widget.onStop != null ? widget.onStop!() : null;
+                setState((){});
               },
               child: SvgPicture.asset('assets/custom_icons/stop_icon.svg', width: 20,),
             ),
