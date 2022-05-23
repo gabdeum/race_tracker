@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui';
 import 'package:location/location.dart';
 
 class ActivityEntry {
@@ -40,7 +41,7 @@ class ActivityEntry {
 
           onLocationChanged();
 
-          print('time: $time - lat: ${location?.latitude} - lon: ${location?.longitude} - duration: ${duration}s - distance: ${distance}m');
+          print('lat: ${location?.latitude} - lon: ${location?.longitude} - dur: ${duration}s - dist: ${distance}m - acc: ${location?.accuracy}');
         }
         else {
           location = event;

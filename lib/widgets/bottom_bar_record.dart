@@ -8,7 +8,7 @@ class BottomBarRecord extends StatefulWidget {
     Key? key,
     required this.widthScreen,
     required this.currentActivity,
-    required this.callback,
+    required this.onChanged,
     this.onFinish,
     this.onStart,
     this.onStop,
@@ -17,7 +17,7 @@ class BottomBarRecord extends StatefulWidget {
 
   final double widthScreen;
   final ActivityEntry? currentActivity;
-  final VoidCallback callback;
+  final VoidCallback onChanged;
 
   final VoidCallback? onResume;
   final VoidCallback? onStop;
@@ -62,7 +62,7 @@ class _BottomBarRecordState extends State<BottomBarRecord> {
                       setState(() {
                         _activityTypeValue = newValue!;
                         widget.currentActivity?.activityType = newValue;
-                        widget.callback();
+                        widget.onChanged();
                       });
                     },
                   ),
@@ -127,7 +127,7 @@ class _BottomBarRecordState extends State<BottomBarRecord> {
                       ],
                     );
                   });
-                  widget.callback();
+                  widget.onChanged();
                 },
                 child: Text('FINISH', style: Theme.of(context).textTheme.bodySmall?.merge(const TextStyle(color: primaryTextColor)),),
               ),

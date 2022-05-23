@@ -24,7 +24,7 @@ class _RecordMapState extends State<RecordMap> {
   void initState() {
     askPermission();
     locationStream = getLocationStream();
-    widget.currentActivity == null ? widget.currentActivity = ActivityEntry(locationStream: locationStream, onLocationChanged: (){setState(() {});}) : widget.currentActivity?.onLocationChanged = (){setState(() {});};
+    widget.currentActivity == null ? widget.currentActivity = ActivityEntry(locationStream: locationStream, onLocationChanged: (){}) : widget.currentActivity?.onLocationChanged = (){setState(() {});};
     super.initState();
   }
 
@@ -57,13 +57,9 @@ class _RecordMapState extends State<RecordMap> {
           Positioned(bottom: 0,child: BottomBarRecord(
             widthScreen: widthScreen,
             currentActivity: widget.currentActivity,
-            callback: (){
+            onChanged: (){
               setState(() {});
             },
-            onStart: (){print('TEST_START');},
-            onFinish: (){print('TEST_FINISH');},
-            onResume: (){print('TEST_RESUME');},
-            onStop: (){print('TEST_STOP');},
           )),
         ],
       ),

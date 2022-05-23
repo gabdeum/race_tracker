@@ -18,10 +18,10 @@ class DisplayData extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.center, children: [
-      Text(title, style: titleStyle ?? Theme.of(context).textTheme.labelMedium,),
-      const SizedBox(height: 5,),
-      Text(dataStr, style: dataStrStyle ?? Theme.of(context).textTheme.bodyMedium,),
-    ],));
+        Text(title, style: titleStyle ?? Theme.of(context).textTheme.labelMedium,),
+        const SizedBox(height: 5,),
+        Text(dataStr, style: dataStrStyle ?? Theme.of(context).textTheme.bodyMedium,),
+      ],),);
   }
 }
 
